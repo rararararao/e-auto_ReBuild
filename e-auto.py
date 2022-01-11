@@ -311,7 +311,7 @@ def AutoSelect():
 
 def main():
 	login()
-	btn = browser.find_element_by_css_selector(".button.btn.btn-large.btn-.learning.text-center.center-block.blue_green")
+	btn = browser.find_element_by_css_selector(".button.btn.btn-large.btn-.learning.text-center.center-block.orange")
 	time.sleep(1)
 	btn.click()
 	lesson_URL_list = LessonDataGet()
