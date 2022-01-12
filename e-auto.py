@@ -214,7 +214,7 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 
 		ans_list = soup.select(".each_choice")
 		
-		c.execute('select ans from choice where jp == ? and choices == ?',(question_japanese," ".join(answer_choices)))
+		c.execute('select ans from choice where jp == ?',(question_japanese,))
 		result = c.fetchone()
 
 		if not result:	#データベースに登録されていない問題だったとき
@@ -227,9 +227,9 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 				ans_word = ans.get("data-answer")
 
 				print("ans_word:",ans_word)
-				print("word:",result)
+				print("word:",result[0].strip())
 
-				if ans_word == result[0]:
+				if ans_word == result[0].strip():
 					ans_btn = f"//a[@data-answer=\"{ans_word}\"]/span/button"
 
 		try:
