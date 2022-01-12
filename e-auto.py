@@ -190,7 +190,7 @@ def GetAns():
 
 def AutoAns(question_type,question_japanese,question_text):
 	print("オートアンスに入ったよ")
-
+	"""
 	#jsonFileの読み込み
 	with open(os.path.join(basePath,"lesson.json"), encoding='utf-8') as f:
 		ans_json = json.load(f)
@@ -206,12 +206,14 @@ def AutoAns(question_type,question_japanese,question_text):
 	soup = BeautifulSoup(browser.page_source,"lxml")
 	print("オートアンスの処理終わったよ")
 	print("pestion_type:",question_type)
+	"""
 
 	if question_type == "択一問題":
 		print("択一問題だよ")
 
 		ans_list = soup.select(".each_choice")
 
+		"""
 		for ans in ans_list:
 			ans_word = ans.get("data-answer")
 
@@ -222,6 +224,11 @@ def AutoAns(question_type,question_japanese,question_text):
 				ans_btn = f"//a[@data-answer=\"{ans_word}\"]/span/button"
 				print(ans_btn)
 				break
+		"""
+		ans = ans_list[0]
+		ans_word = ans.get("data-answer")
+		ans_btn = f"//a[@data-answer=\"{ans_word}\"]/span/button"
+
 		try:
 			btn = browser.find_element_by_xpath(ans_btn)
 			btn.click()
@@ -230,13 +237,15 @@ def AutoAns(question_type,question_japanese,question_text):
 			btn = browser.find_element_by_xpath(ans_btn)
 			btn.click()
 
+
 	elif question_type.startswith("並べ替え"):
 		print("並べ替え問題だよ")
 
-		ans_list = soup.select(".each_choice.ui-draggable.ui-draggable-handle")
+		#ans_list = soup.select(".each_choice.ui-draggable.ui-draggable-handle")
 
-		ans_btns = []
+		#ans_btns = []
 
+		"""
 		while True:
 
 			for ans in ans_list:
@@ -278,6 +287,7 @@ def AutoAns(question_type,question_japanese,question_text):
 			btn = browser.find_element_by_xpath(ans_btn)
 			btn.click()
 
+		"""
 		btn = browser.find_element_by_css_selector(".answer.btn.btn-warning")
 		btn.click()
 
@@ -290,6 +300,8 @@ def AutoAns(question_type,question_japanese,question_text):
 
 		btn = browser.find_element_by_css_selector(".answer.btn.btn-warning")
 		btn.click()
+
+	AutoCollect(question_type)
 
 	stop_time = random.randint(1,3)
 	time.sleep(stop_time)
@@ -320,6 +332,8 @@ def AutoSelect():
 2. 1をDBへ登録する 
 """
 def AutoCollect(question_type:str):
+	time.sleep(5)
+	print("autoCollectに入ったよ")
 	"""
 	Data Base Structures
 		- 択一問題 ｛日本語文,解答群,解答｝
@@ -335,19 +349,19 @@ def AutoCollect(question_type:str):
 	if question_type.startswith("択一"):
 		question_jp = soup.find("p",{"class":"hint_japanese"}).text
 		answer_choices = [x.get_text() for x in soup.find("div",{"class":"choice_area"}).select("a")]
-		answer = browser.find_element_by_xpath("//*[@data-name=\"complete_text\"]").text
+		answer = soup.select_one("td.dt_data.english").text
 		c.execute("insert into choice(jp,choices,ans) values(?,?,?)",(question_jp,answer_choices,answer))
 
 	elif question_type.startswith("並べ替え"):
 		question_jp = soup.find("p",{"class":"hint_japanese"}).text
 		answer_choices = [x.get_text() for x in soup.find("div",{"class":"choice_area"}).select("a")]
-		answer = browser.find_element_by_xpath("//*[@data-name=\"complete_text\"]").find("span",{"class":"marked"}).text
+		answer = soup.select_one("td.dt_data.english > span.marked").text
 		c.execute("insert into line_up(jp,choices,ans) values(?,?,?)",(question_jp,answer_choices,answer))
 
 	elif question_type.startswith("空所記入"):
 		question_jp = soup.find("p",{"class":"hint_japanese"}).text
 		answer_en = soup.find("p",{"class":"blanked_text"}).text
-		answer = browser.find_element_by_xpath("//*[@data-name=\"complete_text\"]").find("span",{"class":"marked"}).text
+		answer = soup.select_one("td.dt_data.english > span.marked").text
 		c.execute("insert into enter(jp,en,ans)",(question_jp,answer_en,answer))
 	
 
