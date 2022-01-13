@@ -335,7 +335,8 @@ def AutoCollect(question_type:str):
 	if question_type.startswith("択一"):
 		question_jp = soup.find("p",{"class":"hint_japanese"}).text
 		answer_choices = " ".join([x.get_text() for x in soup.find("div",{"class":"choice_area"}).select("a")])
-		answer = soup.select_one("td.dt_data.english").text
+		#answer = soup.select_one("td.dt_data.english").text
+		answer = soup.select_one("a.each_choice.disabled.correct").get_text()
 		c.execute("insert into choice(jp,choices,ans) values(?,?,?)",(question_jp,answer_choices,answer))
 
 	elif question_type.startswith("並べ替え"):
