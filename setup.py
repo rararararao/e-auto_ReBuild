@@ -1,3 +1,24 @@
+"""
+	(C)opyright 2022 noko1024(https://github.com/noko1024) polyacetal(https://github.com/polyacetal) yugu0202(https://github.com/yugu0202)
+
+
+    This file is part of e-auto.
+
+    e-auto is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License
+
+    e-auto is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with e-auto.  If not, see <https://www.gnu.org/licenses/>.
+
+
+"""
+
 import os
 import sys
 import platform
