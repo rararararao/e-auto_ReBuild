@@ -1,3 +1,25 @@
+"""
+	(C)opyright 2022 noko1024(https://github.com/noko1024) polyacetal(https://github.com/polyacetal) yugu0202(https://github.com/yugu0202)
+
+
+    This file is part of e-auto.
+
+    e-auto is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License
+
+    e-auto is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with e-auto.  If not, see <https://www.gnu.org/licenses/>.
+
+
+"""
+
+
 import os
 import requests
 from selenium import webdriver
@@ -12,7 +34,7 @@ import re
 import random
 import sqlite3
 import traceback
-
+import datetime
 
 
 basePath = os.path.split(os.path.realpath(__file__))[0]
@@ -149,10 +171,10 @@ def AutoQuestionSelect(lesson_URL):
 		time.sleep(1)
 		#ここで自動解答関数を呼ぶ
 		while True:
-			#stop_time = random.randint(10,20)#元(3,40)テスト推奨(7,20)
+			stop_time = random.randint(10,20)#元(3,40)テスト推奨(7,20)
 			print("sleep in",3)
 			time.sleep(3)
-			#print("sleep out")
+			print("sleep out")
 			get_bool,question_type,question_japanese,question_text,answer_choices = GetQuestionData()
 			if get_bool == False:
 				break
@@ -209,8 +231,7 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 			enter(jp text,en text,ans text)
 	"""
 
-	#stop_time = random.randint(7,17)
-	stop_time = 0
+	stop_time = random.randint(7,17)
 	dont_know = True
 
 	soup = BeautifulSoup(browser.page_source,"lxml")
@@ -228,7 +249,7 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 		ans_btn = f"//a[@data-answer=\"{ans_word}\"]/span/button"
 
 		if not result_all:	#データベースに登録されていない問題だったとき
-			#stop_time -= 5
+			stop_time -= 5
 			print("don't know")
 		
 		else:
@@ -279,7 +300,7 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 				btn = browser.find_element(by=By.XPATH,value=ans_btn)
 				btn.click()
 		else:
-			#stop_time -= 5
+			stop_time -= 5
 			print("don't know")
 
 		print("sleep in",stop_time)
@@ -303,17 +324,10 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 			ans_form = browser.find_elements(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
 
 			for ans_form_one,word in zip(ans_form,result_list):
-				#ここが複数個の時に集め方が今のところ定まってないので待機
 
 				ans_form_one.clear()
 				ans_form_one.send_keys(word)
 				time.sleep(0.5)
-				"""
-				ans_form = browser.find_element(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
-				ans_form.clear()
-				ans_form.send_keys(word)
-				time.sleep(0.5)
-				"""
 				
 		else:
 			ans_form = browser.find_elements(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
@@ -322,17 +336,6 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 				ans_form_one.clear()
 				ans_form_one.send_keys("a")
 				time.sleep(0.5)
-
-			"""
-			#stop_time -= 5
-			print("sleep in",stop_time)
-			time.sleep(stop_time)
-			print("don't know")
-			ans_form = browser.find_element(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
-			ans_form.clear()
-			ans_form.send_keys(" ")
-			time.sleep(0.5)
-			"""
 			
 		btn = browser.find_element(by=By.CSS_SELECTOR,value=".answer.btn.btn-warning")
 		btn.click()
@@ -399,7 +402,6 @@ def AutoCollect(question_type:str):
 	conn.commit()
 
 	print("collect end")
-	#return 
 
 
 def EAutoMain():
@@ -424,13 +426,10 @@ if __name__ == "__main__":
 	try:
 		EAutoMain()
 	except Exception as e:
-		print("\n---ErrorLOG---\n")
-		print(e)
-		print("\n------\n")
-		print("\n---Traceback---\n")
-		traceback.print_exc()
-		print("\n------\n")
-		#errorLogへの書き出し準備もできるように
+		ELOG = "---ErrorLOG---\nDate:{}\nType:{}\n---Traceback---\n{}------\n".format(datetime.datetime.now(),e,traceback.format_exc())
+		with open(os.path.join(basePath,"Error.log"),mode="a") as f:
+			f.write(ELOG)
+		print("エラーが発生しました。エラーログを参照して下さい\n",os.path.join(basePath,"Error.log"))
 	finally:
 		#blower Shutdown
 		browser.quit()
