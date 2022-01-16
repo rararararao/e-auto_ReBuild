@@ -3,6 +3,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome import service
+from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup,NavigableString
 import lxml
 import getpass
@@ -10,6 +11,9 @@ import time
 import re
 import random
 import sqlite3
+import traceback
+
+
 
 basePath = os.path.split(os.path.realpath(__file__))[0]
 
@@ -126,19 +130,20 @@ def AutoQuestionSelect(lesson_URL):
 
 		if question_list is None:
 			break
-
+		
 		for question in question_list:
 			btn_chk = question.select(".class_button.btn.btn-warning")
 			if not btn_chk:
 				continue
 			break
+		
 
 		#lessson_num:lessonいくつかを取得
 		#course_num : courseを取得(通常レッスンとランダム演習の判定に利用)
-
-		btn = browser.find_element(by=By.CSS_SELECTOR,value=".class_button.btn.btn-warning")
-		if not btn:
-			return
+		try:
+			btn = browser.find_element(by=By.CSS_SELECTOR,value=".class_button.btn.btn-warning")
+		except NoSuchElementException:
+			return 
 		btn.click()
 
 		time.sleep(1)
@@ -397,9 +402,14 @@ def AutoCollect(question_type:str):
 	#return 
 
 
-def main():
+def EAutoMain():
 	login()
-	btn = browser.find_element(by=By.CSS_SELECTOR,value=".button.btn.btn-large.btn-.learning.text-center.center-block.orange")
+
+	try:
+		btn = browser.find_element(by=By.CSS_SELECTOR,value=".button.btn.btn-large.btn-.learning.text-center.center-block.blue_green")
+	except NoSuchElementException:
+		btn = browser.find_element(by=By.CSS_SELECTOR,value=".button.btn.btn-large.btn-.learning.text-center.center-block.orange")
+
 	time.sleep(1)
 	btn.click()
 	lesson_URL_list = LessonDataGet()
@@ -412,9 +422,15 @@ def main():
 
 if __name__ == "__main__":
 	try:
-		main()
-	except KeyboardInterrupt:
-		pass
+		EAutoMain()
+	except Exception as e:
+		print("\n---ErrorLOG---\n")
+		print(e)
+		print("\n------\n")
+		print("\n---Traceback---\n")
+		traceback.print_exc()
+		print("\n------\n")
+		#errorLogへの書き出し準備もできるように
 	finally:
 		#blower Shutdown
 		browser.quit()
