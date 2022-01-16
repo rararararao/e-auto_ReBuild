@@ -20,8 +20,6 @@ if os.name == "nt":
 else:
 	chromedriver_path = os.path.join(*[basePath,"lib","chromedriver"])
 
-user_id = input("id>")#e-LeaningのID
-user_pass = getpass.getpass("pass>")#e-Leaningのパスワード
 
 #Chromeの起動
 options = webdriver.ChromeOptions()
@@ -43,6 +41,10 @@ c = conn.cursor()
 def login():
 	#ログインのURL
 	url_login = "https://www.brains-el.jp/"
+	
+	user_id = input("id>")#e-LeaningのID
+	user_pass = getpass.getpass("pass>")#e-Leaningのパスワード
+	
 	browser.get(url_login)
 	#ユーザー情報の送信
 	e = browser.find_element(by=By.XPATH,value="//*[@data-name=\"login_id\"]")
@@ -147,7 +149,7 @@ def AutoQuestionSelect(lesson_URL):
 			time.sleep(3)
 			#print("sleep out")
 			get_bool,question_type,question_japanese,question_text,answer_choices = GetQuestionData()
-			if not get_bool:
+			if get_bool == False:
 				break
 			AutoAns(question_type,question_japanese,question_text,answer_choices)
 
@@ -292,15 +294,31 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 			time.sleep(stop_time)
 			dont_know = False
 			result_list = result[0].split(",")
-			for word in result_list:
+
+			ans_form = browser.find_elements(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
+
+			for ans_form_one,word in zip(ans_form,result_list):
 				#ここが複数個の時に集め方が今のところ定まってないので待機
+
+				ans_form_one.clear()
+				ans_form_one.send_keys(word)
+				time.sleep(0.5)
+				"""
 				ans_form = browser.find_element(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
 				ans_form.clear()
 				ans_form.send_keys(word)
 				time.sleep(0.5)
-			btn = browser.find_element(by=By.CSS_SELECTOR,value=".answer.btn.btn-warning")
-			btn.click()
+				"""
+				
 		else:
+			ans_form = browser.find_elements(by=By.XPATH,value="//*[@class=\"blank_container\"]/input")
+
+			for ans_form_one in ans_form:
+				ans_form_one.clear()
+				ans_form_one.send_keys("a")
+				time.sleep(0.5)
+
+			"""
 			#stop_time -= 5
 			print("sleep in",stop_time)
 			time.sleep(stop_time)
@@ -309,6 +327,10 @@ def AutoAns(question_type,question_japanese,question_text,answer_choices):
 			ans_form.clear()
 			ans_form.send_keys(" ")
 			time.sleep(0.5)
+			"""
+			
+		btn = browser.find_element(by=By.CSS_SELECTOR,value=".answer.btn.btn-warning")
+		btn.click()
 
 	if dont_know:
 		AutoCollect(question_type)
